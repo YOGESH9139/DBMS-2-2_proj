@@ -23,6 +23,37 @@
     
     .loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; background: rgba(0,0,0,0.8); z-index: 10; color: #f4a100; }
 
+    /* SQL Console Styles */
+    .sql-console {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 350px;
+      background: #111; border-top: 2px solid #f4a100;
+      display: flex; flex-direction: column; z-index: 100;
+      transition: transform 0.3s; transform: translateY(100%);
+    }
+    .sql-console.open { transform: translateY(0); }
+    .sql-header {
+      padding: 10px 20px; background: #222; color: #fff; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333;
+    }
+    .sql-body { display: flex; flex: 1; overflow: hidden; }
+    .sql-editor-pane {
+      width: 35%; padding: 15px; display: flex; flex-direction: column; border-right: 1px solid #444; background: #1a1a1a;
+    }
+    .sql-editor-pane textarea {
+      flex: 1; background: #000; color: #0f0; font-family: monospace; padding: 10px; border: 1px solid #444; resize: none; font-size: 14px;
+    }
+    .sql-editor-pane button {
+      margin-top: 10px; background: #f4a100; color: #000; border: none; padding: 10px; cursor: pointer; font-weight: bold; border-radius: 4px;
+    }
+    .sql-editor-pane button:hover { background: #ffb732; }
+    .sql-results-pane {
+      flex: 1; padding: 0; overflow: auto; background: #111;
+    }
+    .sql-results-pane table { width: 100%; border-collapse: collapse; color: #ddd; font-size: 0.9rem; }
+    .sql-results-pane th, .sql-results-pane td { border: 1px solid #333; padding: 8px 12px; text-align: left; }
+    .sql-results-pane th { background: #f4a100; color: #000; position: sticky; top: 0; }
+    .sql-error { color: #ff4444; padding: 15px; font-family: monospace; }
+    .sql-msg { padding: 15px; color: #0f0; font-family: monospace; }
+
     /* Light Theme Overrides */
     body.light-theme { background: #f0f4fb; color: #222; }
     body.light-theme .toolbar { background: #fff; border-bottom: 1px solid #ddd; }
@@ -47,6 +78,7 @@
 <div class="toolbar">
   <h2>Auto-Generated ER Diagram</h2>
   <div class="toolbar-actions">
+    <button id="btn-console" onclick="document.getElementById('sql-console').classList.toggle('open')">💻 SQL Terminal</button>
     <button id="btn-theme">☀️ Light Mode</button>
     <button id="btn-layout">📐 Workbench Layout</button>
     <button id="btn-physics">Freeze Physics</button>
@@ -57,8 +89,63 @@
 <div id="loading" class="loading">Analyzing Database Metadata...</div>
 <div id="network"></div>
 
+<div id="sql-console" class="sql-console">
+  <div class="sql-header">
+    <strong>Raw SQL Terminal & Data Viewer</strong>
+    <button onclick="document.getElementById('sql-console').classList.remove('open')" style="background:none;border:none;color:#fff;cursor:pointer;font-size:20px;">✖</button>
+  </div>
+  <div class="sql-body">
+    <div class="sql-editor-pane">
+      <textarea id="sql-input" placeholder="SELECT * FROM Student LIMIT 10;"></textarea>
+      <button onclick="runSql()">Execute Query ⚡</button>
+    </div>
+    <div class="sql-results-pane" id="sql-results">
+      <div class="sql-msg" style="color:#666">Double-click any table in the ER diagram above, or type a custom query here to see results.</div>
+    </div>
+  </div>
+</div>
+
 <script>
   const API = '/api';
+
+  async function runSql(customQuery = null) {
+    const query = customQuery || document.getElementById('sql-input').value.trim();
+    if(!query) return;
+    
+    if(customQuery) document.getElementById('sql-input').value = customQuery;
+    document.getElementById('sql-console').classList.add('open');
+    
+    const resDiv = document.getElementById('sql-results');
+    resDiv.innerHTML = '<div class="sql-msg" style="color:#f4a100">Executing...</div>';
+    
+    try {
+      const res = await fetch(API + '/schema/query', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ query })
+      });
+      const data = await res.json();
+      if(data.error) throw new Error(data.error);
+      
+      if(data.fields && data.fields.length > 0) {
+        let html = '<table><thead><tr>';
+        data.fields.forEach(f => html += `<th>${f}</th>`);
+        html += '</tr></thead><tbody>';
+        data.rows.forEach(r => {
+          html += '<tr>';
+          data.fields.forEach(f => html += `<td>${r[f] !== null ? r[f] : '<i>NULL</i>'}</td>`);
+          html += '</tr>';
+        });
+        html += '</tbody></table>';
+        if(data.rows.length === 0) html = '<div class="sql-msg" style="color:#f4a100">0 rows returned.</div>' + html;
+        resDiv.innerHTML = html;
+      } else {
+        resDiv.innerHTML = `<div class="sql-msg">Query executed successfully.<br>Affected rows: ${data.rows.affectedRows || 0}</div>`;
+      }
+    } catch(e) {
+      resDiv.innerHTML = `<div class="sql-error">${e.message}</div>`;
+    }
+  }
 
   async function loadSchema() {
     try {
@@ -267,7 +354,7 @@
       network.on("doubleClick", function (params) {
         if (params.nodes.length > 0) {
           const tableName = params.nodes[0];
-          alert('Double clicked table: ' + tableName + '\\n\\nTip: Use the node editor toolbar to add/connect nodes.');
+          runSql(`SELECT * FROM ${tableName} LIMIT 50;`);
         }
       });
       
