@@ -127,7 +127,7 @@
           to: fk.REFERENCED_TABLE_NAME,
           label: getEdgeLabel(fk.TABLE_NAME, fk.REFERENCED_TABLE_NAME, fk.COLUMN_NAME),
           arrows: 'to',
-          font: { align: 'middle', size: 10, color: '#aaaaaa', background: '#222' },
+          font: { align: 'middle', size: 12, color: '#f4a100', background: '#111111', strokeWidth: 0 },
           color: { color: '#f4a100', highlight: '#ffffff' },
           smooth: { type: 'cubicBezier' }
         });
@@ -224,7 +224,7 @@
           e.target.textContent = '☀️ Light Mode';
           // Update network node colors
           const newNodes = nodesData.map(n => ({...n, color: { background: '#2b5499', border: '#f4a100' }, font: {...n.font, color: '#ffffff'}}));
-          const newEdges = edgesData.map(e => ({...e, font: {...e.font, color: '#aaaaaa', background: '#222'}}));
+          const newEdges = edgesData.map(e => ({...e, font: {...e.font, color: '#f4a100', background: '#111111', strokeWidth: 0}}));
           networkData.nodes.update(newNodes);
           networkData.edges.update(newEdges);
         } else {
@@ -232,7 +232,7 @@
           e.target.textContent = '🌙 Dark Mode';
           // Update network node colors for light mode
           const newNodes = nodesData.map(n => ({...n, color: { background: '#ffffff', border: '#1a3a6b' }, font: {...n.font, color: '#222222'}}));
-          const newEdges = edgesData.map(e => ({...e, font: {...e.font, color: '#444444', background: '#ffffff'}}));
+          const newEdges = edgesData.map(e => ({...e, font: {...e.font, color: '#1a3a6b', background: '#f0f4fb', strokeWidth: 0}}));
           networkData.nodes.update(newNodes);
           networkData.edges.update(newEdges);
         }
