@@ -24,4 +24,4 @@ A comprehensive, full-stack college administration portal built with Node.js, Ex
 SELECT *
 FROM student
 WHERE course_id = 1;
----
+
