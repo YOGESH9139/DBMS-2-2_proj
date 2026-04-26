@@ -24,7 +24,7 @@ A comprehensive, full-stack college administration portal built with Node.js, Ex
 SELECT *
 FROM student
 WHERE course_id = 1;
-
+```
 ## SQL nested query to find the course in which the highest number of students have enrolled.
 ``` bash
 SELECT C.course_id, C.course_name
@@ -39,3 +39,4 @@ HAVING COUNT(*) = (
         GROUP BY course_id
     ) AS temp
 );
+```
