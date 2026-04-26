@@ -573,8 +573,8 @@ app.post('/api/schema/edge', async (req, res) => {
 const path = require('path');
 app.use(express.static(path.join(__dirname, '../frontend')));
 
-// Catch-all route to serve index.html for any unhandled paths (useful for SPA routing if added later)
-app.get('*', (req, res) => {
+// Catch-all route to serve index.html for any unhandled paths
+app.get(/(.*)/, (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
