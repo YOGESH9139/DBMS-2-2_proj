@@ -21,9 +21,11 @@ A comprehensive, full-stack college administration portal built with Node.js, Ex
 
 ## SQL query to display all details of students whose course_id is 1
 ``` bash
-SELECT *
-FROM student
-WHERE course_id = 1;
+SELECT S.*
+FROM Student S
+JOIN Enrollment E 
+ON S.student_id = E.student_id
+WHERE E.course_id = 1;
 ```
 ## SQL nested query to find the course in which the highest number of students have enrolled.
 ``` bash
