@@ -1,0 +1,33 @@
+/* ── DASHBOARD ─────────────────────────────────── */
+#sec-dashboard { display: none; }
+#sec-dashboard.active { display: block; }
+
+.dash-title { font-size: 1.1rem; color: #1a3a6b; border-bottom: 2px solid #1a3a6b; padding-bottom: 8px; margin-bottom: 16px; }
+
+.stat-cards { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 24px; }
+.stat-card { background: #fff; border: 1px solid #ddd; border-top: 4px solid #1a3a6b; padding: 16px 22px; min-width: 150px; flex: 1; text-align: center; border-radius: 2px; }
+.stat-card .stat-num { font-size: 2rem; font-weight: bold; color: #1a3a6b; }
+.stat-card .stat-label { font-size: 12px; color: #666; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+.dash-row { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 24px; }
+.dash-panel { background: #fff; border: 1px solid #ddd; padding: 14px 18px; border-radius: 2px; flex: 1; min-width: 280px; }
+.dash-panel h3 { font-size: 0.9rem; color: #1a3a6b; margin-bottom: 12px; border-bottom: 1px solid #e0e0e0; padding-bottom: 6px; }
+
+.bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 12px; }
+.bar-label { width: 80px; text-align: right; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar-track { flex: 1; background: #e8ecf4; height: 18px; border-radius: 2px; overflow: hidden; }
+.bar-fill { height: 100%; background: #1a3a6b; border-radius: 2px; transition: width 0.4s; }
+.bar-count { width: 28px; font-weight: bold; color: #1a3a6b; }
+
+.grade-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.grade-pill { padding: 5px 14px; border-radius: 2px; font-size: 13px; font-weight: bold; background: #e8ecf4; color: #1a3a6b; border: 1px solid #c0cde8; }
+.grade-pill span { font-weight: normal; font-size: 11px; color: #555; margin-left: 4px; }
+
+.low-att-table, .top-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.low-att-table th { background: #a31a1a; color: #fff; padding: 6px 8px; text-align: left; }
+.low-att-table td { padding: 5px 8px; border-bottom: 1px solid #eee; }
+.low-att-table tr:nth-child(even) td { background: #fff5f5; }
+.att-pct { font-weight: bold; color: #a31a1a; }
+.top-table th { background: #2b7a2b; color: #fff; padding: 6px 8px; text-align: left; }
+.top-table td { padding: 5px 8px; border-bottom: 1px solid #eee; }
+.top-table tr:nth-child(even) td { background: #f5fff5; }

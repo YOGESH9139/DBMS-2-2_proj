@@ -1,0 +1,67 @@
+/* ── BASE & HEADER ─────────────────────────────── */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, sans-serif; font-size: 14px; background: #f5f5f0; color: #222; }
+
+header { background: #1a3a6b; color: #fff; padding: 12px 20px; border-bottom: 4px solid #f4a100; }
+.header-inner { display: flex; align-items: center; gap: 14px; }
+.emblem { width: 56px; height: 56px; }
+header h1 { font-size: 1.4rem; letter-spacing: 0.5px; }
+.subtitle { font-size: 0.8rem; color: #c9d6ea; margin-top: 2px; }
+
+/* ── NAV ─────────────────────────────────────────── */
+#main-nav { background: #2b5499; display: flex; flex-wrap: wrap; gap: 2px; padding: 6px 10px; border-bottom: 2px solid #f4a100; }
+.tab-btn { background: #3a6abf; color: #fff; border: 1px solid #5080cc; padding: 6px 14px; cursor: pointer; border-radius: 2px; font-size: 13px; }
+.tab-btn:hover { background: #4a7ad0; }
+.tab-btn.active { background: #f4a100; color: #111; border-color: #c78000; font-weight: bold; }
+
+/* ── MODAL ────────────────────────────────────────── */
+#modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center; z-index: 999; }
+#modal-overlay.hidden { display: none; }
+#modal-box { background: #fff; padding: 24px; width: 420px; max-width: 95vw; border-top: 4px solid #1a3a6b; border-radius: 2px; max-height: 90vh; overflow-y: auto; }
+#modal-title { font-size: 1rem; color: #1a3a6b; margin-bottom: 14px; border-bottom: 1px solid #ccc; padding-bottom: 8px; }
+#modal-form label { display: block; margin-bottom: 2px; font-weight: bold; font-size: 12px; color: #333; }
+#modal-form input, #modal-form select { width: 100%; padding: 7px 9px; margin-bottom: 10px; border: 1px solid #aaa; border-radius: 2px; font-size: 13px; }
+.modal-actions { display: flex; gap: 10px; margin-top: 8px; }
+#modal-submit { background: #1a3a6b; color: #fff; border: none; padding: 8px 20px; cursor: pointer; border-radius: 2px; flex: 1; }
+#modal-submit:hover { background: #2b5499; }
+#modal-cancel { background: #888; color: #fff; border: none; padding: 8px 20px; cursor: pointer; border-radius: 2px; flex: 1; }
+#modal-cancel:hover { background: #555; }
+
+/* ── TOAST ────────────────────────────────────────── */
+#toast { position: fixed; bottom: 24px; right: 24px; background: #1a3a6b; color: #fff; padding: 10px 20px; border-radius: 3px; font-size: 13px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 9999; border-left: 4px solid #f4a100; }
+#toast.show { opacity: 1; }
+.no-data { color: #888; font-style: italic; padding: 10px; }
+
+/* ── TABLES ───────────────────────────────────────── */
+#main-content { padding: 20px; max-width: 1200px; }
+.section { display: none; }
+.section.active { display: block; }
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #1a3a6b; }
+.section-header h2 { font-size: 1.1rem; color: #1a3a6b; }
+.btn-add { background: #1a3a6b; color: #fff; border: none; padding: 7px 16px; cursor: pointer; font-size: 13px; border-radius: 2px; }
+.btn-add:hover { background: #2b5499; }
+
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; background: #fff; font-size: 13px; }
+th { background: #1a3a6b; color: #fff; padding: 8px 10px; text-align: left; white-space: nowrap; }
+td { padding: 7px 10px; border-bottom: 1px solid #ddd; vertical-align: middle; }
+tr:nth-child(even) td { background: #f0f4fb; }
+tr:hover td { background: #dce8ff; }
+
+.btn-edit { background: #2b7a2b; color: #fff; border: none; padding: 4px 10px; cursor: pointer; border-radius: 2px; margin-right: 4px; font-size: 12px; }
+.btn-edit:hover { background: #1e5a1e; }
+.btn-del { background: #a31a1a; color: #fff; border: none; padding: 4px 10px; cursor: pointer; border-radius: 2px; font-size: 12px; }
+.btn-del:hover { background: #730000; }
+
+/* ── SEARCH ───────────────────────────────────────── */
+.search-bar { margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.search-bar input { padding: 6px 10px; border: 1px solid #aaa; border-radius: 2px; font-size: 13px; width: 280px; }
+.search-bar label { font-size: 13px; font-weight: bold; color: #333; }
+.row-count { font-size: 12px; color: #666; margin-left: auto; }
+
+/* ── CLICKABLE NAMES ──────────────────────────────── */
+.name-link { color: #1a3a6b; text-decoration: underline; cursor: pointer; font-weight: bold; }
+.name-link:hover { color: #f4a100; }
+
+td.att-low { color: #a31a1a; font-weight: bold; }
+td.att-ok  { color: #2b7a2b; font-weight: bold; }

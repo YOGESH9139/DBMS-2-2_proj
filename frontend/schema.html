@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interactive ER Diagram — SMS</title>
+  <link rel="stylesheet" href="css/common.css" />
+  
+  <!-- Vis Network for Graph -->
+  <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+  
+  <style>
+    body { margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; background: #222; color: #fff; }
+    header { background: #1a3a6b; border-bottom: 2px solid #f4a100; flex-shrink: 0; }
+    .toolbar { display: flex; align-items: center; justify-content: space-between; padding: 10px 20px; background: #111; border-bottom: 1px solid #333; }
+    .toolbar h2 { margin: 0; font-size: 1.1rem; color: #f4a100; }
+    .toolbar-actions button { background: #3a6abf; color: #fff; border: none; padding: 6px 14px; cursor: pointer; border-radius: 2px; font-size: 13px; margin-left: 8px; }
+    .toolbar-actions button:hover { background: #4a7ad0; }
+    .back-btn { background: #444 !important; }
+    .back-btn:hover { background: #666 !important; }
+    
+    #network { flex: 1; width: 100%; height: 100%; }
+    
+    .loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; background: rgba(0,0,0,0.8); z-index: 10; color: #f4a100; }
+
+    /* Light Theme Overrides */
+    body.light-theme { background: #f0f4fb; color: #222; }
+    body.light-theme .toolbar { background: #fff; border-bottom: 1px solid #ddd; }
+    body.light-theme .toolbar h2 { color: #1a3a6b; }
+    body.light-theme .toolbar-actions button { background: #1a3a6b; }
+    body.light-theme .toolbar-actions button:hover { background: #2b5499; }
+    body.light-theme .back-btn { background: #666 !important; }
+    body.light-theme .back-btn:hover { background: #444 !important; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div>
+      <h1>Student Management System</h1>
+      <p class="subtitle">Interactive Database Schema Explorer</p>
+    </div>
+  </div>
+</header>
+
+<div class="toolbar">
+  <h2>Auto-Generated ER Diagram</h2>
+  <div class="toolbar-actions">
+    <button id="btn-theme">☀️ Light Mode</button>
+    <button id="btn-layout">📐 Workbench Layout</button>
+    <button id="btn-physics">Freeze Physics</button>
+    <button onclick="location.href='index.html'" class="back-btn">← Back to App</button>
+  </div>
+</div>
+
+<div id="loading" class="loading">Analyzing Database Metadata...</div>
+<div id="network"></div>
+
+<script>
+  const API = '/api';
+
+  async function loadSchema() {
+    try {
+      const res = await fetch(API + '/schema');
+      if (!res.ok) throw new Error('Failed to fetch schema');
+      const data = await res.json();
+      
+      const nodesData = [];
+      const edgesData = [];
+      
+      // Build Nodes (Tables)
+      data.tables.forEach(t => {
+        let label = `<b>${t.name.toUpperCase()}</b>\n────────────────────────\n`;
+        t.columns.forEach(c => {
+          let prefix = '  ';
+          if (c.key === 'PRI') prefix = '🔑 ';
+          else if (c.key === 'MUL') prefix = '🔗 ';
+          
+          label += `${prefix}${c.name} <i>(${c.type})</i>\n`;
+        });
+        
+        nodesData.push({
+          id: t.name,
+          label: label.trim(),
+          shape: 'box',
+          color: {
+            background: '#2b5499',
+            border: '#f4a100',
+            highlight: { background: '#3a6abf', border: '#ffb732' }
+          },
+          font: { color: '#ffffff', face: 'monospace', multi: 'html', align: 'left', size: 14 },
+          borderWidth: 2,
+          borderWidthSelected: 4
+        });
+      });
+      
+      // Build Edges (Foreign Keys)
+      data.foreignKeys.forEach(fk => {
+        edgesData.push({
+          from: fk.TABLE_NAME,
+          to: fk.REFERENCED_TABLE_NAME,
+          label: `${fk.COLUMN_NAME} → ${fk.REFERENCED_COLUMN_NAME}`,
+          arrows: 'to',
+          font: { align: 'middle', size: 10, color: '#aaaaaa', background: '#222' },
+          color: { color: '#f4a100', highlight: '#ffffff' },
+          smooth: { type: 'cubicBezier' }
+        });
+      });
+      
+      // Initialize Network
+      const container = document.getElementById('network');
+      const networkData = {
+        nodes: new vis.DataSet(nodesData),
+        edges: new vis.DataSet(edgesData)
+      };
+      
+      const options = {
+        physics: {
+          barnesHut: { gravitationalConstant: -30000, centralGravity: 0.3, springLength: 200 },
+          stabilization: { iterations: 150 }
+        },
+        interaction: { hover: true, tooltipDelay: 200 },
+        manipulation: {
+          enabled: true,
+          addNode: async function (data, callback) {
+            const name = prompt("Enter new table name (alphanumeric only):");
+            if (!name) { callback(null); return; }
+            try {
+              const r = await fetch(API+'/schema/table', {
+                method:'POST', headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({ tableName: name })
+              });
+              if(!r.ok) throw new Error(await r.text());
+              const json = await r.json();
+              data.id = json.name;
+              data.label = `<b>${json.name.toUpperCase()}</b>\n────────────────────────\n🔑 ${json.name}_id <i>(INT)</i>\n  name <i>(VARCHAR)</i>`;
+              data.shape = 'box';
+              data.font = { color: '#ffffff', face: 'monospace', multi: 'html', align: 'left', size: 14 };
+              data.color = { background: '#2b5499', border: '#f4a100' };
+              callback(data);
+              alert("Table '"+json.name+"' created in database!");
+            } catch(e) { alert("Error: "+e.message); callback(null); }
+          },
+          deleteNode: async function (data, callback) {
+            if(!confirm("Are you sure you want to completely DROP this table from the DB?")) { callback(null); return; }
+            try {
+              const table = data.nodes[0];
+              const r = await fetch(API+'/schema/table/'+table, { method:'DELETE' });
+              if(!r.ok) throw new Error(await r.text());
+              callback(data);
+            } catch(e) { alert("Error: "+e.message); callback(null); }
+          },
+          addEdge: async function (data, callback) {
+            if(data.from === data.to) { callback(null); return; }
+            if(!confirm(`Create a Foreign Key connecting ${data.from} to ${data.to}?`)) { callback(null); return; }
+            try {
+              const r = await fetch(API+'/schema/edge', {
+                method:'POST', headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({ fromTable: data.from, toTable: data.to })
+              });
+              if(!r.ok) throw new Error(await r.text());
+              data.arrows = 'to';
+              data.color = { color: '#f4a100' };
+              data.label = `${data.to}_id → pk`;
+              callback(data);
+              alert("Foreign key constraint added to database!");
+            } catch(e) { alert("Error: "+e.message); callback(null); }
+          },
+          deleteEdge: function(data, callback) {
+            alert("Dropping foreign keys visually is disabled for safety.");
+            callback(null);
+          }
+        }
+      };
+      
+      const network = new vis.Network(container, networkData, options);
+      
+      document.getElementById('loading').style.display = 'none';
+      
+      // Toggle physics
+      let physicsEnabled = true;
+      document.getElementById('btn-physics').addEventListener('click', (e) => {
+        physicsEnabled = !physicsEnabled;
+        network.setOptions({ physics: { enabled: physicsEnabled } });
+        e.target.textContent = physicsEnabled ? 'Freeze Physics' : 'Enable Physics';
+        e.target.style.background = physicsEnabled ? '#3a6abf' : '#a31a1a';
+        if(document.body.classList.contains('light-theme')) {
+           e.target.style.background = physicsEnabled ? '#1a3a6b' : '#a31a1a';
+        }
+      });
+
+      // Toggle Theme
+      let isDark = true;
+      document.getElementById('btn-theme').addEventListener('click', (e) => {
+        isDark = !isDark;
+        if(isDark) {
+          document.body.classList.remove('light-theme');
+          e.target.textContent = '☀️ Light Mode';
+          // Update network node colors
+          const newNodes = nodesData.map(n => ({...n, color: { background: '#2b5499', border: '#f4a100' }, font: {...n.font, color: '#ffffff'}}));
+          const newEdges = edgesData.map(e => ({...e, font: {...e.font, color: '#aaaaaa', background: '#222'}}));
+          networkData.nodes.update(newNodes);
+          networkData.edges.update(newEdges);
+        } else {
+          document.body.classList.add('light-theme');
+          e.target.textContent = '🌙 Dark Mode';
+          // Update network node colors for light mode
+          const newNodes = nodesData.map(n => ({...n, color: { background: '#ffffff', border: '#1a3a6b' }, font: {...n.font, color: '#222222'}}));
+          const newEdges = edgesData.map(e => ({...e, font: {...e.font, color: '#444444', background: '#ffffff'}}));
+          networkData.nodes.update(newNodes);
+          networkData.edges.update(newEdges);
+        }
+      });
+
+      // Toggle Workbench Layout
+      let isWorkbench = false;
+      document.getElementById('btn-layout').addEventListener('click', (e) => {
+        isWorkbench = !isWorkbench;
+        if(isWorkbench) {
+          e.target.textContent = '🔄 Free Layout';
+          network.setOptions({
+            layout: {
+              hierarchical: { enabled: true, direction: 'UD', sortMethod: 'directed', nodeSpacing: 350, levelSeparation: 250 }
+            },
+            physics: { enabled: false }, // turn off physics for structured layout
+            edges: { smooth: { type: 'cubicBezier', forceDirection: 'vertical', roundness: 0.4 } }
+          });
+          document.getElementById('btn-physics').style.display = 'none';
+        } else {
+          e.target.textContent = '📐 Workbench Layout';
+          network.setOptions({
+            layout: { hierarchical: false },
+            physics: { enabled: physicsEnabled },
+            edges: { smooth: { type: 'cubicBezier' } }
+          });
+          document.getElementById('btn-physics').style.display = 'inline-block';
+        }
+      });
+
+      // Double click to view table data
+      network.on("doubleClick", function (params) {
+        if (params.nodes.length > 0) {
+          const tableName = params.nodes[0];
+          alert('Double clicked table: ' + tableName + '\\n\\nTip: Use the node editor toolbar to add/connect nodes.');
+        }
+      });
+      
+    } catch (err) {
+      document.getElementById('loading').innerHTML = `<span style="color:red">Error: ${err.message}</span>`;
+    }
+  }
+  
+  loadSchema();
+</script>
+</body>
+</html>

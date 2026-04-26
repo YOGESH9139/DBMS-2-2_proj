@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Management System</title>
+  <link rel="stylesheet" href="css/common.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+</head>
+
+<body>
+
+  <header>
+    <div class="header-inner">
+      <div>
+        <h1>Student Management System</h1>
+        <p class="subtitle">College Administration Portal</p>
+      </div>
+    </div>
+  </header>
+
+  <nav id="main-nav">
+    <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
+    <button class="tab-btn" data-tab="students">Students</button>
+    <button class="tab-btn" data-tab="departments">Departments</button>
+    <button class="tab-btn" data-tab="courses">Courses</button>
+    <button class="tab-btn" data-tab="faculty">Faculty</button>
+    <button class="tab-btn" data-tab="enrollments">Enrollment</button>
+    <button class="tab-btn" data-tab="results">Results</button>
+    <button class="tab-btn" data-tab="attendance">Attendance</button>
+    <button class="tab-btn" data-tab="transport">Transport</button>
+    <button class="tab-btn" data-tab="buses">Buses</button>
+    <button class="tab-btn" data-tab="drivers">Drivers</button>
+    <button class="tab-btn" data-tab="routes">Routes</button>
+    <button class="tab-btn" data-tab="route-stops">Route Stops</button>
+    <button class="tab-btn" data-tab="course-faculty">Course-Faculty</button>
+    <button class="tab-btn" onclick="location.href='schema.html'" style="background:#8a2be2; border-color:#5a1b92;">View
+      ER Diagram</button>
+  </nav>
+
+  <main id="main-content"></main>
+
+  <div id="modal-overlay" class="hidden">
+    <div id="modal-box">
+      <h2 id="modal-title">Form</h2>
+      <form id="modal-form"></form>
+      <div class="modal-actions">
+        <button id="modal-submit" type="button">Save</button>
+        <button id="modal-cancel" type="button">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script src="js/api.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/app.js"></script>
+</body>
+
+</html>

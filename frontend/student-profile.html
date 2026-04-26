@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Profile — SMS</title>
+  <link rel="stylesheet" href="css/common.css" />
+  <link rel="stylesheet" href="css/profile.css" />
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div>
+      <h1>Student Management System</h1>
+      <p class="subtitle">Student Profile</p>
+    </div>
+  </div>
+</header>
+
+<div class="profile-container" id="profile-root">
+  <p class="no-data">Loading student profile...</p>
+</div>
+
+<div id="toast"></div>
+<script src="js/api.js"></script>
+<script>
+(async function(){
+  const id = new URLSearchParams(location.search).get('id');
+  const root = document.getElementById('profile-root');
+  if(!id){ root.innerHTML='<p class="no-data">No student ID provided.</p>'; return; }
+
+  try {
+    const d = await api('/students/'+id+'/profile');
+    const s = d.student;
+    const initials = s.student_name.split(' ').map(w=>w[0]).join('').toUpperCase();
+
+    // Enrollments table
+    const enrollTbl = d.enrollments.length
+      ? `<table class="profile-table"><thead><tr><th>Course</th><th>Credits</th><th>Semester</th></tr></thead><tbody>${
+          d.enrollments.map(e=>`<tr><td>${e.course_name}</td><td>${e.credits}</td><td>${e.semester}</td></tr>`).join('')
+        }</tbody></table>`
+      : '<p class="no-data">No enrollments found.</p>';
+
+    // Results table
+    const resTbl = d.results.length
+      ? `<table class="profile-table"><thead><tr><th>Course</th><th>Marks</th><th>Grade</th></tr></thead><tbody>${
+          d.results.map(r=>{
+            const cls = r.marks>=80?'badge-green':r.marks>=50?'badge-blue':'badge-red';
+            return `<tr><td>${r.course_name}</td><td>${r.marks}</td><td><span class="badge ${cls}">${r.grade}</span></td></tr>`;
+          }).join('')
+        }</tbody></table>`
+      : '<p class="no-data">No results found.</p>';
+
+    // Attendance table
+    const attTbl = d.attendance.length
+      ? `<table class="profile-table"><thead><tr><th>Course</th><th>Attendance</th><th>Status</th></tr></thead><tbody>${
+          d.attendance.map(a=>{
+            const pct = parseFloat(a.attendance_percentage);
+            const cls = pct<75?'badge-red':'badge-green';
+            const lbl = pct<75?'Low':'OK';
+            return `<tr><td>${a.course_name}</td><td>${pct}%</td><td><span class="badge ${cls}">${lbl}</span></td></tr>`;
+          }).join('')
+        }</tbody></table>`
+      : '<p class="no-data">No attendance records.</p>';
+
+    // Transport info
+    const transp = d.transport.length
+      ? `<div class="transport-info">${d.transport.map(t=>`
+          <div class="transport-card"><strong>🚌 Bus ${t.bus_no}</strong>
+            <span>Route: ${t.route_name||'N/A'}</span><br/>
+            <span>Driver: ${t.driver_name||'N/A'}</span><br/>
+            <span>Capacity: ${t.capacity||'N/A'}</span>
+          </div>`).join('')}</div>`
+      : '<p class="no-data">No transport assigned.</p>';
+
+    // Compute stats
+    const avgMarks = d.results.length ? (d.results.reduce((s,r)=>s+r.marks,0)/d.results.length).toFixed(1) : 'N/A';
+    const avgAtt = d.attendance.length ? (d.attendance.reduce((s,a)=>s+parseFloat(a.attendance_percentage),0)/d.attendance.length).toFixed(1)+'%' : 'N/A';
+
+    root.innerHTML = `
+      <a href="index.html" class="back-link">← Back to Dashboard</a>
+
+      <div class="profile-card">
+        <div class="profile-header">
+          <div class="profile-avatar">${initials}</div>
+          <div>
+            <div class="profile-name">${s.student_name}</div>
+            <div class="profile-meta">
+              <span>ID: ${s.student_id}</span>
+              <span>Dept: ${s.department_name||'N/A'}</span>
+            </div>
+          </div>
+        </div>
+        <div class="info-grid">
+          <div class="info-item"><label>Email</label><div class="info-val">${s.email||'N/A'}</div></div>
+          <div class="info-item"><label>Phone</label><div class="info-val">${s.phone||'N/A'}</div></div>
+          <div class="info-item"><label>Address</label><div class="info-val">${s.address||'N/A'}</div></div>
+          <div class="info-item"><label>Avg Marks</label><div class="info-val">${avgMarks}</div></div>
+          <div class="info-item"><label>Avg Attendance</label><div class="info-val">${avgAtt}</div></div>
+          <div class="info-item"><label>Courses Enrolled</label><div class="info-val">${d.enrollments.length}</div></div>
+        </div>
+      </div>
+
+      <div class="profile-section"><h3>📚 Enrollments</h3>${enrollTbl}</div>
+      <div class="profile-section"><h3>📝 Results</h3>${resTbl}</div>
+      <div class="profile-section"><h3>📊 Attendance</h3>${attTbl}</div>
+      <div class="profile-section"><h3>🚌 Transport</h3>${transp}</div>
+    `;
+  } catch(e) {
+    root.innerHTML=`<a href="index.html" class="back-link">← Back</a><p class="no-data" style="color:red">Error: ${e.message}</p>`;
+  }
+})();
+</script>
+</body>
+</html>
