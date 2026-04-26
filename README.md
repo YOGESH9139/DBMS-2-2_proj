@@ -15,20 +15,6 @@ A comprehensive, full-stack college administration portal built with Node.js, Ex
 - **Frontend**: Vanilla JavaScript (ES6+), CSS3 (Modern Flex/Grid), HTML5
 - **Visuals**: Vis.js (Network Graphing), Chart.js (Analytics)
 
-## 📦 Quick Start
-1. **Clone & Install**:
-   ```bash
-   git clone <repo-url>
-   cd backend && npm install
-   ```
-2. **Database Setup**:
-   Import `student_management.sql` into your MySQL instance.
-3. **Environment**:
-   Create a `.env` file in the `backend/` folder with your credentials (`DB_HOST`, `DB_USER`, etc.).
-4. **Run**:
-   ```bash
-   npm start
-   ```
+## Link: https://dbms-2-2proj-production.up.railway.app/index.html
 
-## 🌐 Deployment
-This project is pre-configured for **Railway.app**. Simply connect your GitHub repository and Railway will automatically detect the root `package.json` to build and serve the full-stack application.
+## Presentation Link: https://canva.link/kpgje36lmiulhf8
