@@ -95,12 +95,37 @@
         });
       });
       
+      // Helper for human-readable relationships
+      function getEdgeLabel(fromTable, toTable, column) {
+        const dict = {
+          'Enrollment-Student': 'enrolled student',
+          'Enrollment-Course': 'enrolled in',
+          'Course_Faculty-Faculty': 'taught by',
+          'Course_Faculty-Course': 'teaches',
+          'Attendance-Student': 'tracks student',
+          'Attendance-Course': 'tracks course',
+          'Result-Student': 'scored by',
+          'Result-Course': 'grade for',
+          'Fee-Student': 'paid by',
+          'Transport-Student': 'rides',
+          'Transport-Bus': 'assigned to',
+          'Bus-Route': 'runs on',
+          'Hostel-Student': 'lives in',
+          'Library-Student': 'borrowed by'
+        };
+        const key = `${fromTable}-${toTable}`;
+        if (dict[key]) return dict[key];
+        
+        if (toTable === 'Department') return 'belongs to dept';
+        return column; // Fallback
+      }
+
       // Build Edges (Foreign Keys)
       data.foreignKeys.forEach(fk => {
         edgesData.push({
           from: fk.TABLE_NAME,
           to: fk.REFERENCED_TABLE_NAME,
-          label: `${fk.COLUMN_NAME} → ${fk.REFERENCED_COLUMN_NAME}`,
+          label: getEdgeLabel(fk.TABLE_NAME, fk.REFERENCED_TABLE_NAME, fk.COLUMN_NAME),
           arrows: 'to',
           font: { align: 'middle', size: 10, color: '#aaaaaa', background: '#222' },
           color: { color: '#f4a100', highlight: '#ffffff' },
