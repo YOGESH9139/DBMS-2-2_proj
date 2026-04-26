@@ -72,6 +72,21 @@ async function delRow(id,pk){
 function buildSections(){
   const main=document.getElementById('main-content');
   let html=`<section id="sec-dashboard" class="section"></section>`;
+  html+=`<section id="sec-sql-terminal" class="section">
+    <div class="section-header">
+      <h2>Raw SQL Terminal</h2>
+      <p style="color:#666; margin: 0 10px;">Execute custom SQL queries directly against the database.</p>
+    </div>
+    <div class="sql-body" style="display:flex; height: 500px; border: 1px solid #ddd; border-radius: 8px; overflow:hidden;">
+      <div class="sql-editor-pane" style="width: 35%; padding: 15px; display: flex; flex-direction: column; background: #f8f9fa; border-right: 1px solid #ddd;">
+        <textarea id="sql-input" style="flex: 1; padding: 12px; font-family: monospace; border: 1px solid #ccc; border-radius: 4px; resize: none;" placeholder="SELECT * FROM Student LIMIT 10;"></textarea>
+        <button onclick="runSql()" style="margin-top: 10px; padding: 10px; background: #2c3e50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Execute Query ⚡</button>
+      </div>
+      <div class="sql-results-pane" id="sql-results" style="flex: 1; overflow: auto; background: white; padding: 10px;">
+        <p style="color:#999; text-align: center; margin-top: 100px;">Query results will appear here...</p>
+      </div>
+    </div>
+  </section>`;
   html+=Object.values(TABLES).map(cfg=>`
     <section id="sec-${cfg.id}" class="section">
       <div class="section-header">
