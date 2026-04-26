@@ -18,3 +18,10 @@ A comprehensive, full-stack college administration portal built with Node.js, Ex
 ## Link: https://dbms-2-2proj-production.up.railway.app/index.html
 
 ## Presentation Link: https://canva.link/kpgje36lmiulhf8
+
+## SQL query to display all details of students whose course_id is 1
+``` bash
+SELECT *
+FROM student
+WHERE course_id = 1;
+---
