@@ -35,8 +35,8 @@
     <button class="tab-btn" data-tab="routes">Routes</button>
     <button class="tab-btn" data-tab="route-stops">Route Stops</button>
     <button class="tab-btn" data-tab="course-faculty">Course-Faculty</button>
-    <button class="tab-btn" onclick="location.href='schema.html'" style="background:#8a2be2; border-color:#5a1b92;">View
-      ER Diagram</button>
+    <button class="tab-btn" data-tab="sql-terminal" style="background:#2c3e50;">💻 SQL Terminal</button>
+    <button class="tab-btn" onclick="location.href='schema.html'" style="background:#8a2be2; border-color:#5a1b92;">View ER Diagram</button>
   </nav>
 
   <main id="main-content"></main>
@@ -57,6 +57,41 @@
   <script src="js/api.js"></script>
   <script src="js/config.js"></script>
   <script src="js/dashboard.js"></script>
+  <script>
+    async function runSql(customQuery = null) {
+      const query = customQuery || document.getElementById('sql-input').value.trim();
+      if(!query) return;
+      if(customQuery) document.getElementById('sql-input').value = customQuery;
+      const resDiv = document.getElementById('sql-results');
+      resDiv.innerHTML = '<div class="sql-msg" style="color:#f4a100">Executing...</div>';
+      try {
+        const res = await fetch(API + '/schema/query', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ query })
+        });
+        const data = await res.json();
+        if(data.error) throw new Error(data.error);
+        if(data.fields && data.fields.length > 0) {
+          let html = '<table><thead><tr>';
+          data.fields.forEach(f => html += `<th>${f}</th>`);
+          html += '</tr></thead><tbody>';
+          data.rows.forEach(r => {
+            html += '<tr>';
+            data.fields.forEach(f => html += `<td>${r[f] !== null ? r[f] : '<i>NULL</i>'}</td>`);
+            html += '</tr>';
+          });
+          html += '</tbody></table>';
+          if(data.rows.length === 0) html = '<div class="sql-msg" style="color:#f4a100">0 rows returned.</div>' + html;
+          resDiv.innerHTML = html;
+        } else {
+          resDiv.innerHTML = `<div class="sql-msg">Query executed successfully.<br>Affected rows: ${data.rows.affectedRows || 0}</div>`;
+        }
+      } catch(e) {
+        resDiv.innerHTML = `<div class="sql-error">${e.message}</div>`;
+      }
+    }
+  </script>
   <script src="js/app.js"></script>
 </body>
 
