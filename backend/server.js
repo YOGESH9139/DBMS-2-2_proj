@@ -580,6 +580,28 @@ app.get(/(.*)/, (req, res) => {
 });
 
 // ─────────────────────────────────────────────
+//  RAW SQL CONSOLE (Admin/Dev tool)
+// ─────────────────────────────────────────────
+app.post('/api/schema/query', async (req, res) => {
+  try {
+    const { query } = req.body;
+    if (!query) return res.status(400).json({ error: 'No query provided' });
+    const [rows, fields] = await pool.query(query);
+    res.json({ rows, fields: fields ? fields.map(f => f.name) : [] });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// ─────────────────────────────────────────────
+//  GLOBAL ERROR HANDLER
+// ─────────────────────────────────────────────
+app.use((err, req, res, next) => {
+  console.error('SERVER ERROR:', err.message);
+  res.status(500).json({ error: err.message });
+});
+
+// ─────────────────────────────────────────────
 //  START
 // ─────────────────────────────────────────────
 const PORT = process.env.PORT || 3001;
