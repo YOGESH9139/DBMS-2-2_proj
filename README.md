@@ -25,3 +25,17 @@ SELECT *
 FROM student
 WHERE course_id = 1;
 
+## SQL nested query to find the course in which the highest number of students have enrolled.
+``` bash
+SELECT C.course_id, C.course_name
+FROM Course C
+JOIN Enrollment E ON C.course_id = E.course_id
+GROUP BY C.course_id, C.course_name
+HAVING COUNT(*) = (
+    SELECT MAX(student_count)
+    FROM (
+        SELECT COUNT(*) AS student_count
+        FROM Enrollment
+        GROUP BY course_id
+    ) AS temp
+);
